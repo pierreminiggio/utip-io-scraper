@@ -4,14 +4,10 @@ const rackupMoney = async (slug) => {
 
     const browser = await puppeteer.launch({ headless: true })
 
-    let message = 'Il y a eu une erreur'
-
     try {
         const page = await browser.newPage()
 
         page.goto('https://utip.io/' + slug)
-
-        console.log('Let\'s find an ad !')
 
         await page.waitFor(20000)
     
@@ -34,7 +30,7 @@ const rackupMoney = async (slug) => {
 
             await page.waitFor(10000)
         } else {
-            console.log('No ad :\'(')
+            // no add
         }
 
     } catch (e) {
