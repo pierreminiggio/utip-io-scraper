@@ -51,7 +51,7 @@ const rackupMoney = async (slug, show) => {
 
             await page.waitFor(10000)
         } else {
-            console.log('No ad :\'(')
+            // No ads maybe ?
         }
 
     } catch(e) {
