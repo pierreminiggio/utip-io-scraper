@@ -39,7 +39,7 @@ const rackupMoney = async (slug, show) => {
         await page.waitFor(60000)
 
         const success = await page.evaluate(() => {
-            return document.querySelector('button-no-style.button-donation.button-donation-mobile') !== null
+            return document.querySelector('.button-no-style.button-donation.button-donation-mobile') !== null
         })
 
         if (success) {
