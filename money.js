@@ -28,9 +28,9 @@ const rackupMoney = async (slug) => {
     try {
         const page = await browser.newPage()
 
-        page.goto('https://utip.io/' + slug)
+        page.goto('https://utip.io/' + slug, {waitUntil: 'networkidle2', timeout: 0})
 
-        await page.waitFor(20000)
+        await page.waitFor(30000)
     
         await page.click(
             'img[src="https://cdn.utip.eu/build/images/play_white.2549a3e4.svg"]',
@@ -66,7 +66,7 @@ function letsGo () {
         console.warn('Use this program like this: "node money.js <your-utip-slug>"')
     } else {
 
-        console.log('starting tor...')
+        console.log('\n\nstarting tor...')
         exec('tor&', (error, stdout, stderr) => {
             if (! error && stdout && ! stderr) {
                 console.log('tor started')
@@ -77,7 +77,7 @@ function letsGo () {
 
         setTimeout(() => {
             const slug = process.argv[2]
-            console.log("\n\nLet's run an ad on " + slug + "'s page :")
+            console.log("Let's run an ad on " + slug + "'s page :")
             rackupMoney(slug).then(() => {
 
                 console.log('stopping tor...')
