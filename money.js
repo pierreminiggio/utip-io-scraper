@@ -11,16 +11,16 @@ const rackupMoney = async (slug, show) => {
     )
 
     const testPage = await browser.newPage()
-	await testPage.goto('https://check.torproject.org/')
-	const isUsingTor = await testPage.$eval('body', el =>
-		el.innerHTML.includes('Congratulations. This browser is configured to use Tor')
+    await testPage.goto('https://check.torproject.org/')
+    const isUsingTor = await testPage.$eval('body', el =>
+        el.innerHTML.includes('Congratulations. This browser is configured to use Tor')
     )
     
     if (isUsingTor) {
         console.log('Puppeteer using tor, all good.')
     } else {
-		console.log('Not using Tor. Closing...')
-		return await browser.close()
+        console.log('Not using Tor. Closing...')
+        return await browser.close()
     }
     
     testPage.close()
