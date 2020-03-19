@@ -1,8 +1,29 @@
+const {exec} = require('child_process')
 const puppeteer = require('puppeteer')
 
 const rackupMoney = async (slug) => {
 
-    const browser = await puppeteer.launch({ headless: true })
+    const browser = await puppeteer.launch(
+        {
+            headless: true,
+            args: ['--proxy-server=socks5://127.0.0.1:9050']
+        }
+    )
+
+    const testPage = await browser.newPage()
+	await testPage.goto('https://check.torproject.org/')
+	const isUsingTor = await testPage.$eval('body', el =>
+		el.innerHTML.includes('Congratulations. This browser is configured to use Tor')
+    )
+    
+    if (isUsingTor) {
+        console.log('Puppeteer using tor, all good.')
+    } else {
+		console.log('Not using Tor. Closing...')
+		return await browser.close()
+    }
+    
+    testPage.close()
 
     try {
         const page = await browser.newPage()
@@ -33,7 +54,7 @@ const rackupMoney = async (slug) => {
             // no add
         }
 
-    } catch (e) {
+    } catch(e) {
         console.error(e)
     }
 
@@ -44,11 +65,26 @@ function letsGo () {
     if (process.argv.length !== 3) {
         console.warn('Use this program like this: "node money.js <your-utip-slug>"')
     } else {
-        const slug = process.argv[2]
-        console.log("\n\nLet's run an ad on " + slug + "'s page :")
-        rackupMoney(slug).then(() => {
-            letsGo()
-        })
+        exec('tor&', (error, stdout, stderr) => {})
+
+        console.log('tor started')
+
+        setTimeout(() => {
+            const slug = process.argv[2]
+            console.log("\n\nLet's run an ad on " + slug + "'s page :")
+            rackupMoney(slug).then(() => {
+                exec('taskkill /IM "tor.exe" /F', (error, stdout, stderr) => {
+
+                    if (! error && stdout && ! stderr) {
+                        console.log('tor stopped')
+                    } else {
+                        console.log('error while stopping tor, probably already stopped')
+                    }
+
+                    letsGo()
+                })
+            })
+        }, 2000) 
     }
 }
 
