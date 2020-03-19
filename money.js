@@ -62,41 +62,48 @@ const rackupMoney = async (slug, show) => {
 }
 
 function letsGo () {
+
     if (process.argv.length < 3) {
+
         console.warn('Use this program like this: "node money.js <your-utip-slug> <options: show>"')
+
     } else {
 
-        console.log('\n\nStarting tor...')
-        exec('tor&', (error, stdout, stderr) => {
+        console.log('\n\nClear previous tor...\n\n\n\n')
+
+        exec('taskkill /IM "tor.exe" /F', (error, stdout, stderr) => {
             if (! error && stdout && ! stderr) {
-                console.log('Tor started')
+                console.log('Tor stopped')
             } else {
-                console.error('Error while starting tor, please make sure tor is started')
+                console.log('Tor couldn\'t be stopped, probably already stopped')
             }
-        })
 
-        setTimeout(() => {
-            const slug = process.argv[2]
-            const show = process.argv.length > 3 && process.argv[3] === 'show'
-            console.log("Let's run an ad on " + slug + "'s page :")
-            rackupMoney(slug, show).then(() => {
+            console.log('Starting tor...')
 
-                console.log('Stopping tor...')
+            exec('tor&', (error, stdout, stderr) => {
 
-                exec('taskkill /IM "tor.exe" /F', (error, stdout, stderr) => {
+                if (! error && stdout && ! stderr) {
+                    console.log('Tor started')
+                } else {
+                    console.error('Error while starting tor, please make sure tor is started')
+                }
 
-                    if (! error && stdout && ! stderr) {
-                        console.log('Tor stopped')
-                    } else {
-                        console.log('Error couldn\'t be stopped, probably already stopped')
-                    }
+            })
 
+            setTimeout(() => {
+
+                const slug = process.argv[2]
+                const show = process.argv.length > 3 && process.argv[3] === 'show'
+                console.log("Let's run an ad on " + slug + "'s page :")
+
+                rackupMoney(slug, show).then(() => {
                     letsGo()
                 })
-            })
-        }, 2000) 
+
+            }, 2000)
+
+        })
     }
 }
-
 
 letsGo()
