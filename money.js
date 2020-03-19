@@ -1,11 +1,11 @@
 const {exec} = require('child_process')
 const puppeteer = require('puppeteer')
 
-const rackupMoney = async (slug) => {
+const rackupMoney = async (slug, show) => {
 
     const browser = await puppeteer.launch(
         {
-            headless: true,
+            headless: ! show,
             args: ['--proxy-server=socks5://127.0.0.1:9050']
         }
     )
@@ -39,7 +39,7 @@ const rackupMoney = async (slug) => {
         await page.waitFor(60000)
 
         const success = await page.evaluate(() => {
-            return document.querySelector('button-no-style button-donation.button-donation-mobile') !== null
+            return document.querySelector('button-no-style.button-donation.button-donation-mobile') !== null
         })
 
         if (success) {
@@ -51,7 +51,7 @@ const rackupMoney = async (slug) => {
 
             await page.waitFor(10000)
         } else {
-            // no add
+            console.log('No ad :\'(')
         }
 
     } catch(e) {
@@ -62,32 +62,33 @@ const rackupMoney = async (slug) => {
 }
 
 function letsGo () {
-    if (process.argv.length !== 3) {
-        console.warn('Use this program like this: "node money.js <your-utip-slug>"')
+    if (process.argv.length < 3) {
+        console.warn('Use this program like this: "node money.js <your-utip-slug> <options: show>"')
     } else {
 
-        console.log('\n\nstarting tor...')
+        console.log('\n\nStarting tor...')
         exec('tor&', (error, stdout, stderr) => {
             if (! error && stdout && ! stderr) {
-                console.log('tor started')
+                console.log('Tor started')
             } else {
-                console.error('error while starting tor, please make sure tor is started')
+                console.error('Error while starting tor, please make sure tor is started')
             }
         })
 
         setTimeout(() => {
             const slug = process.argv[2]
+            const show = process.argv.length > 3 && process.argv[3] === 'show'
             console.log("Let's run an ad on " + slug + "'s page :")
-            rackupMoney(slug).then(() => {
+            rackupMoney(slug, show).then(() => {
 
-                console.log('stopping tor...')
+                console.log('Stopping tor...')
 
                 exec('taskkill /IM "tor.exe" /F', (error, stdout, stderr) => {
 
                     if (! error && stdout && ! stderr) {
-                        console.log('tor stopped')
+                        console.log('Tor stopped')
                     } else {
-                        console.log('error couldn\'t be stopped, probably already stopped')
+                        console.log('Error couldn\'t be stopped, probably already stopped')
                     }
 
                     letsGo()
