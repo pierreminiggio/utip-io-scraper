@@ -65,20 +65,29 @@ function letsGo () {
     if (process.argv.length !== 3) {
         console.warn('Use this program like this: "node money.js <your-utip-slug>"')
     } else {
-        exec('tor&', (error, stdout, stderr) => {})
 
-        console.log('tor started')
+        console.log('starting tor...')
+        exec('tor&', (error, stdout, stderr) => {
+            if (! error && stdout && ! stderr) {
+                console.log('tor started')
+            } else {
+                console.error('error while starting tor, please make sure tor is started')
+            }
+        })
 
         setTimeout(() => {
             const slug = process.argv[2]
             console.log("\n\nLet's run an ad on " + slug + "'s page :")
             rackupMoney(slug).then(() => {
+
+                console.log('stopping tor...')
+
                 exec('taskkill /IM "tor.exe" /F', (error, stdout, stderr) => {
 
                     if (! error && stdout && ! stderr) {
                         console.log('tor stopped')
                     } else {
-                        console.log('error while stopping tor, probably already stopped')
+                        console.log('error couldn\'t be stopped, probably already stopped')
                     }
 
                     letsGo()
