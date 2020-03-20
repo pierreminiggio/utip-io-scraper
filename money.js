@@ -40,22 +40,6 @@ const rackupMoney = async (slug, tor, color, show) => {
 
         await page.waitFor(60000)
 
-        const success = await page.evaluate(() => {
-            return document.querySelector('.button-no-style.button-donation.button-donation-mobile') === null
-        })
-
-        if (success) {
-            await page.click(
-                '.yellow-btn.button-no-style',
-            )
-
-            console.log(color, 'Money credited !')
-
-            await page.waitFor(10000)
-        } else {
-            // No ads maybe ?
-        }
-
     } catch(e) {
         console.error(e)
     }
