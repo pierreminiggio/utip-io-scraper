@@ -47,7 +47,50 @@ const rackupMoney = async (slug, tor, color, show) => {
     browser.close()
 }
 
-function letsGo () {
+function startWithTor(slug, show, color) {
+    console.log(color, '\n\nClear previous tor...\n\n\n\n')
+
+    exec('taskkill /IM "tor.exe" /F', (error, stdout, stderr) => {
+        if (! error && stdout && ! stderr) {
+            console.log(color, 'Tor stopped')
+        } else {
+            console.log(color, 'Tor couldn\'t be stopped, probably already stopped')
+        }
+
+        console.log(color, 'Starting tor...')
+
+        exec('tor&', (error, stdout, stderr) => {
+
+            if (! error && stdout && ! stderr) {
+                console.log(color, 'Tor started')
+            } else {
+                console.error(color, 'Error while starting tor, please make sure tor is started')
+            }
+
+        })
+
+        setTimeout(() => {
+            console.log(color, "Let's run an ad on " + slug + "'s page :")
+
+            rackupMoney(slug, true, color, show).then(() => {
+                startWithTor(slug, show, color)
+            })
+
+        }, 2000)
+
+    })
+}
+
+function startWithoutTor(slug, show, color)
+{
+    console.log(color, "Let's run an ad on " + slug + "'s page :")
+
+    rackupMoney(slug, false, color, show).then(() => {
+        startWithoutTor()
+    })
+}
+
+function letsGo() {
 
     if (process.argv.length < 3) {
 
@@ -60,51 +103,12 @@ function letsGo () {
         const both = process.argv.length > 3 && process.argv[3] === 'both'
         const show = process.argv.length > 4 && process.argv[4] === 'show'
 
-        const torColor = '\x1b[35m'
-        const pupColor = '\x1b[33m'
-
         if (tor || both) {
-            
-            console.log(torColor, '\n\nClear previous tor...\n\n\n\n')
-
-            exec('taskkill /IM "tor.exe" /F', (error, stdout, stderr) => {
-                if (! error && stdout && ! stderr) {
-                    console.log(torColor, 'Tor stopped')
-                } else {
-                    console.log(torColor, 'Tor couldn\'t be stopped, probably already stopped')
-                }
-
-                console.log(torColor, 'Starting tor...')
-
-                exec('tor&', (error, stdout, stderr) => {
-
-                    if (! error && stdout && ! stderr) {
-                        console.log(torColor, 'Tor started')
-                    } else {
-                        console.error(torColor, 'Error while starting tor, please make sure tor is started')
-                    }
-
-                })
-
-                setTimeout(() => {
-                    console.log(torColor, "Let's run an ad on " + slug + "'s page :")
-
-                    rackupMoney(slug, true, torColor, show).then(() => {
-                        letsGo()
-                    })
-
-                }, 2000)
-
-            })
-
+            startWithTor(slug, show, '\x1b[35m')
         }
         
         if (! tor || both) {
-            console.log(pupColor, "Let's run an ad on " + slug + "'s page :")
-
-            rackupMoney(slug, false, pupColor, show).then(() => {
-                letsGo()
-            })
+            startWithoutTor(slug, show, '\x1b[33m')
         }
         
     }
