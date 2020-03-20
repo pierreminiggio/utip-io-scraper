@@ -86,7 +86,7 @@ function startWithoutTor(slug, show, color)
     console.log(color, "Let's run an ad on " + slug + "'s page :")
 
     rackupMoney(slug, false, color, show).then(() => {
-        startWithoutTor()
+        startWithoutTor(slug, show, color)
     })
 }
 
