@@ -1,7 +1,7 @@
 const {exec} = require('child_process')
 const puppeteer = require('puppeteer')
 
-const rackupMoney = async (slug, tor, show) => {
+const rackupMoney = async (slug, tor, color, show) => {
 
     let launchParameters = {headless: ! show}
     if (tor) {
@@ -17,9 +17,9 @@ const rackupMoney = async (slug, tor, show) => {
         )
         
         if (isUsingTor) {
-            console.log('Puppeteer using tor, all good.')
+            console.log(color, 'Puppeteer using tor, all good.')
         } else {
-            console.log('Not using Tor. Closing...')
+            console.log(color, 'Not using Tor. Closing...')
             return await browser.close()
         }
         
@@ -49,7 +49,7 @@ const rackupMoney = async (slug, tor, show) => {
                 '.yellow-btn.button-no-style',
             )
 
-            console.log('Money credited !')
+            console.log(color, 'Money credited !')
 
             await page.waitFor(10000)
         } else {
@@ -76,33 +76,36 @@ function letsGo () {
         const both = process.argv.length > 3 && process.argv[3] === 'both'
         const show = process.argv.length > 4 && process.argv[4] === 'show'
 
+        const torColor = '\x1b[35m'
+        const pupColor = '\x1b[33m'
+
         if (tor || both) {
             
-            console.log('\n\nClear previous tor...\n\n\n\n')
+            console.log(torColor, '\n\nClear previous tor...\n\n\n\n')
 
             exec('taskkill /IM "tor.exe" /F', (error, stdout, stderr) => {
                 if (! error && stdout && ! stderr) {
-                    console.log('Tor stopped')
+                    console.log(torColor, 'Tor stopped')
                 } else {
-                    console.log('Tor couldn\'t be stopped, probably already stopped')
+                    console.log(torColor, 'Tor couldn\'t be stopped, probably already stopped')
                 }
 
-                console.log('Starting tor...')
+                console.log(torColor, 'Starting tor...')
 
                 exec('tor&', (error, stdout, stderr) => {
 
                     if (! error && stdout && ! stderr) {
-                        console.log('Tor started')
+                        console.log(torColor, 'Tor started')
                     } else {
-                        console.error('Error while starting tor, please make sure tor is started')
+                        console.error(torColor, 'Error while starting tor, please make sure tor is started')
                     }
 
                 })
 
                 setTimeout(() => {
-                    console.log("Let's run an ad on " + slug + "'s page :")
+                    console.log(torColor, "Let's run an ad on " + slug + "'s page :")
 
-                    rackupMoney(slug, true, show).then(() => {
+                    rackupMoney(slug, true, torColor, show).then(() => {
                         letsGo()
                     })
 
@@ -113,9 +116,9 @@ function letsGo () {
         }
         
         if (! tor || both) {
-            console.log("Let's run an ad on " + slug + "'s page :")
+            console.log(pupColor, "Let's run an ad on " + slug + "'s page :")
 
-            rackupMoney(slug, false, show).then(() => {
+            rackupMoney(slug, false, pupColor, show).then(() => {
                 letsGo()
             })
         }
