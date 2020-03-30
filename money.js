@@ -48,46 +48,57 @@ const rackupMoney = async (slug, tor, color, show) => {
 }
 
 function startWithTor(slug, show, color) {
-    console.log(color, '\n\nClear previous tor...\n\n\n\n')
 
-    exec('taskkill /IM "tor.exe" /F', (error, stdout, stderr) => {
-        if (! error && stdout && ! stderr) {
-            console.log(color, 'Tor stopped')
-        } else {
-            console.log(color, 'Tor couldn\'t be stopped, probably already stopped')
-        }
+    try {
+        console.log(color, '\n\nClear previous tor...\n\n\n\n')
 
-        console.log(color, 'Starting tor...')
-
-        exec('tor&', (error, stdout, stderr) => {
-
+        exec('taskkill /IM "tor.exe" /F', (error, stdout, stderr) => {
             if (! error && stdout && ! stderr) {
-                console.log(color, 'Tor started')
+                console.log(color, 'Tor stopped')
             } else {
-                console.error(color, 'Error while starting tor, please make sure tor is started')
+                console.log(color, 'Tor couldn\'t be stopped, probably already stopped')
             }
 
-        })
+            console.log(color, 'Starting tor...')
 
-        setTimeout(() => {
-            console.log(color, "Let's run an ad on " + slug + "'s page :")
+            exec('tor&', (error, stdout, stderr) => {
 
-            rackupMoney(slug, true, color, show).then(() => {
-                startWithTor(slug, show, color)
+                if (! error && stdout && ! stderr) {
+                    console.log(color, 'Tor started')
+                } else {
+                    console.error(color, 'Error while starting tor, please make sure tor is started')
+                }
+
             })
 
-        }, 2000)
+            setTimeout(() => {
+                console.log(color, "Let's run an ad on " + slug + "'s page :")
 
-    })
+                rackupMoney(slug, true, color, show).then(() => {
+                    startWithTor(slug, show, color)
+                })
+
+            }, 2000)
+
+        })
+    } catch(e) {
+        console.warn(color, '\n\nIl y a eu une erreur, redémarrage du script')
+        startWithTor(slug, show, color)
+    }
 }
 
 function startWithoutTor(slug, show, color)
 {
-    console.log(color, "Let's run an ad on " + slug + "'s page :")
+    try {
+        console.log(color, "Let's run an ad on " + slug + "'s page :")
 
-    rackupMoney(slug, false, color, show).then(() => {
+        rackupMoney(slug, false, color, show).then(() => {
+            startWithoutTor(slug, show, color)
+        })
+    } catch(e) {
+        console.warn(color, '\n\nIl y a eu une erreur, redémarrage du script')
         startWithoutTor(slug, show, color)
-    })
+    }
 }
 
 function letsGo() {
