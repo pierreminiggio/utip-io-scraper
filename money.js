@@ -76,6 +76,9 @@ function startWithTor(slug, show, color) {
 
                 rackupMoney(slug, true, color, show).then(() => {
                     startWithTor(slug, show, color)
+                }).catch(e => {
+                    console.warn(color, '\n\nIl y a eu une erreur, redémarrage du script')
+                    startWithTor(slug, show, color)
                 })
 
             }, 2000)
@@ -93,6 +96,9 @@ function startWithoutTor(slug, show, color)
         console.log(color, "Let's run an ad on " + slug + "'s page :")
 
         rackupMoney(slug, false, color, show).then(() => {
+            startWithoutTor(slug, show, color)
+        }).catch(e => {
+            console.warn(color, '\n\nIl y a eu une erreur, redémarrage du script')
             startWithoutTor(slug, show, color)
         })
     } catch(e) {
